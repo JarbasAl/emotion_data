@@ -63,12 +63,6 @@ class CompositeEmotion(Emotion):
         return "CompositeEmotionObject:" + self.name
 
 
-class Feeling(object):
-    def __init__(self):
-        self.name = ""
-        self.emotions = []
-
-
 def _get_dyads():
     dyads = {
         "sensitivity": ["Serenity", "Pensiveness", "Joy", "Sadness", "Ecstasy", "Grief"],
@@ -289,25 +283,25 @@ EMOTION_TREE = {
 }
 
 COMPOSITE_EMOTIONS = {
-    "aggressiveness": [("rage", "vigilance"), ("anger", "vigilance")],
-    "rejection": [("rage", "amazement"), ("anger", "amazement")],
-    "rivalry": [("rage", "admiration"), ("anger", "admiration")],
-    "contempt": [("rage", "loathing"), ("anger", "loathing")],
+    "aggressiveness": [("rage", "vigilance")],
+    "rejection": [("rage", "amazement")],
+    "rivalry": [("rage", "admiration")],
+    "contempt": [("rage", "loathing")],
 
-    "anxiety": [("terror", "vigilance"), ("fear", "vigilance")],
-    "awe": [("terror", "amazement"), ("fear", "amazement")],
-    "submission": [("terror", "admiration"), ("fear", "admiration")],
-    "coercion": [("terror", "loathing"), ("fear", "loathing")],
+    "anxiety": [("terror", "vigilance")],
+    "awe": [("terror", "amazement")],
+    "submission": [("terror", "admiration")],
+    "coercion": [("terror", "loathing")],
 
-    "optimism": [("ecstasy", "vigilance"), ("joy", "vigilance")],
-    "frivolity": [("ecstasy", "amazement"), ("joy", "amazement")],
-    "love": [("ecstasy", "admiration"), ("joy", "admiration")],
-    "gloat": [("ecstasy", "loathing"), ("joy", "loathing")],
+    "optimism": [("ecstasy", "vigilance")],
+    "frivolity": [("ecstasy", "amazement")],
+    "love": [("ecstasy", "admiration")],
+    "gloat": [("ecstasy", "loathing")],
 
-    "frustration": [("grief", "vigilance"), ("sadness", "vigilance")],
-    "disapproval": [("grief", "amazement"), ("sadness", "amazement")],
-    "envy": [("grief", "admiration"), ("sadness", "amazement")],
-    "remorse": [("grief", "loathing"), ("sadness", "amazement")]
+    "frustration": [("grief", "vigilance")],
+    "disapproval": [("grief", "amazement")],
+    "envy": [("grief", "admiration")],
+    "remorse": [("grief", "loathing")]
 }
 
 
@@ -514,4 +508,5 @@ def get_dyad(name):
             return [e.dyad for e in emotion.components if e.dyad]
         return emotion.dyad
     return None
+
 

@@ -2,7 +2,7 @@
 
 structured data to work with emotions
 
-this project was made for use with [LILACS](https://github.com/JarbasAl/LILACS/)
+this project was made for use with [LILACS](https://github.com/JarbasAl/LILACS/), this is early work and subject to change, information bellow may be outdated
 
 
 reference - https://en.wikipedia.org/wiki/Contrasting_and_categorization_of_emotions
@@ -27,6 +27,8 @@ It contrasted anger, anticipation, joy, and trust as positive emotions, and fear
 |  pleasantness  |   ecstasy  |      joy     |  serenity  |  pensiveness |  sadness |   grief   |
 |    aptitude    | admiration |     trust    | acceptance |    boredom   |  disgust |  loathing |
 
+
+you can think of dyads as "dimensions of feelings"
 
 dyads are represented by a DyadObject, you can look up the dyad for an emotion
 
@@ -307,19 +309,57 @@ data for 153 emotions is available, it should be accurate but occasionally incom
 Jessica Hagy wrote on her blog that Plutchik's wheel of emotions gave a demonstration on emotions, but needed more levels of intensity in the emotion combinations. 
 She observed that the wheel was a Venn diagram format, and expanded the primary dyads.
 
-Feelings are groups of emotions from different dyads:
+Feelings are groups of two emotions, these are related but not the same thing as composite emotions
 
-- Outrage =	Surprise + Anger
-- Anxiety =	Anticipation + Fear
+
+There are currently 39 feelings
 
   
-    class Feeling(object):
-        def __init__(self):
-            self.name = ""
-            self.emotions = []
+        from emotion_data.feelings import get_feeling, random_feeling, FEELINGS_MAP
+        
+        print(len(FEELINGS_MAP))  # 39
+        
+        f = get_feeling("despair")
+        pprint.pprint(f.__dict__)
+        
+        """
+        {'dyads': [DyadObject:pleasentness, DyadObject:sensitivity],
+         'emotions': [EmotionObject:fear, EmotionObject:sadness],
+         'name': 'despair'}
+        """
+        
+        f = random_feeling()
+        pprint.pprint(f.__dict__)
+        
+        """
+        {'dyads': [DyadObject:pleasentness, DyadObject:aptitude],
+         'emotions': [EmotionObject:annoyance, EmotionObject:interest],
+         'name': 'disfavor'}
+        """
+        
+        pprint.pprint(FEELINGS_MAP)
+        
+        """
+        {'acknowledgement': FeelingObject:acknowledgement,
+         'acquiescence': FeelingObject:acquiescence,
+         'aggressiveness': FeelingObject:aggressiveness,
+        
+        ...
+        
+         'wariness': FeelingObject:wariness,
+         'zeal': FeelingObject:zeal}
+         """
+
+NOTE: Feelings and Emotions may share names:
+
+- Love (composite emotion) = Ecstasy + Admiration
+- Love (feeling) = Joy + Trust
 
 
-TODO implement mappings for this
+NOTE: there may be more than 1 feeling with the same name but different dyads:
+
+- Shame = Fear + Disgust
+- Shame = Grief + Loathing
 
 
 # Composite Emotions 
