@@ -358,6 +358,23 @@ data for 153 emotions is available, it should be accurate but occasionally incom
     """
 
 
+# Feelings
+
+Jessica Hagy wrote on her blog that Plutchik's wheel of emotions gave a demonstration on emotions, but needed more levels of intensity in the emotion combinations. 
+She observed that the wheel was a Venn diagram format, and expanded the primary dyads.
+
+Feelings are groups of emotions from different dyads:
+
+- Outrage =	Surprise + Anger
+- Anxiety =	Anticipation + Fear
+
+  
+    class Feeling(object):
+        def __init__(self):
+            self.name = ""
+            self.emotions = []
+
+TODO implement mappings for this
 
 
 # Composite Emotions 
