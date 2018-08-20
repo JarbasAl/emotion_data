@@ -40,7 +40,7 @@ NOTE: DO NOT abuse this, meant for dev purposes, you should deploy your own deep
 
 assigning a emotion to a sentence can be complicated, for development purposes paralleldots is being used
 
-NOTE: DO NOT abuse this, meant for dev purposes, you should get a key not hijack the [demo site](https://www.paralleldots.com/text-analysis-apis)!
+NOTE: DO NOT abuse this, meant for dev purposes, you should [get a key](https://www.paralleldots.com/api-wrappers) not hijack the [demo site](https://www.paralleldots.com/text-analysis-apis)!
 
      from emotion_data.tag import tag
      
