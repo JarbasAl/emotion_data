@@ -71,7 +71,7 @@ class Feeling(object):
         self.emotions = []
 
 
-def get_dyads():
+def _get_dyads():
     dyads = {
         "sensitivity": ["Serenity", "Pensiveness", "Joy", "Sadness", "Ecstasy", "Grief"],
         "attention": ["Acceptance", "Boredom", "Trust", "Disgust", "Admiration", "Loathing"],
@@ -92,10 +92,10 @@ def get_dyads():
     return dyad_map
 
 
-DYADS = get_dyads()
+DYADS = _get_dyads()
 
 
-def get_dyads_map():
+def _get_dyads_map():
     dyads = {
         "sensitivity": ["Serenity", "Pensiveness", "Joy", "Sadness", "Ecstasy", "Grief"],
         "attention": ["Acceptance", "Boredom", "Trust", "Disgust", "Admiration", "Loathing"],
@@ -109,10 +109,10 @@ def get_dyads_map():
     return dyad_map
 
 
-DYADS_MAP = get_dyads_map()
+DYADS_MAP = _get_dyads_map()
 
 
-def get_opposite_emotion_map():
+def _get_opposite_emotion_map():
     map = {"love": "hate"}
     for d in DYADS:
         dyad = DYADS[d]
@@ -136,7 +136,7 @@ NEGATIVE_EMOTIONS = ["indifference", "habituation", "boredom", "aversion",
                      "disappointment", "pride", "arrogance", "avarice", "greed",
                      "miserliness", "envy", "jealousy", "cruelty", "hate"]
 
-OPPOSITE_EMOTION_MAP = get_opposite_emotion_map()
+OPPOSITE_EMOTION_MAP = _get_opposite_emotion_map()
 
 DIMENSION_MAP = {"sensitivity": ["rage", "anger", "annoyance", "apprehension", "fear", "terror"],
                  "attention": ["vigilance", "anticipation", "interest", "distraction", "surprise", "amazement"],
@@ -313,7 +313,7 @@ COMPOSITE_EMOTIONS = {
 }
 
 
-def get_emotion_map():
+def _get_emotion_map():
     map = {}
 
     # get the basic emotions from each dimension
@@ -470,7 +470,7 @@ def get_emotion_map():
     return map
 
 
-EMOTION_MAP = get_emotion_map()
+EMOTION_MAP = _get_emotion_map()
 
 EMOTION_NAMES = [EMOTION_MAP[e].name for e in EMOTION_MAP]
 

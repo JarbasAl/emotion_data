@@ -401,9 +401,39 @@ In general these are somewhat inaccurate and you will want to analyze the compon
 reference lists and mappings are also provided
 
 
-    from emotion_data import POSITIVE_EMOTIONS, NEGATIVE_EMOTIONS, EMOTION_NAMES, OPPOSITE_EMOTION_MAP, EMOTION_MAP, COMPOSITE_EMOTIONS
+    from emotion_data import POSITIVE_EMOTIONS, NEGATIVE_EMOTIONS, EMOTION_NAMES, OPPOSITE_EMOTION_MAP, EMOTION_MAP, COMPOSITE_EMOTIONS, DIMENSION_MAP
     import pprint
        
+    pprint.pprint(DIMENSION_MAP)
+
+    """
+    
+    {'aptitude': ['admiration',
+                  'trust',
+                  'acceptance',
+                  'boredom',
+                  'disgust',
+                  'loathing'],
+     'attention': ['vigilance',
+                   'anticipation',
+                   'interest',
+                   'distraction',
+                   'surprise',
+                   'amazement'],
+     'pleasantness': ['ecstasy',
+                      'joy',
+                      'serenity',
+                      'pensiveness',
+                      'sadness',
+                      'grief'],
+     'sensitivity': ['rage',
+                     'anger',
+                     'annoyance',
+                     'apprehension',
+                     'fear',
+                     'terror']}
+    """
+
     print(POSITIVE_EMOTIONS)
     
     """
