@@ -71,6 +71,10 @@ EMOJI_MAP = {
 }
 
 
+# http://kt.ijs.si/data/Emoji_sentiment_ranking/
+EMOJI_SENTIMENT = {}
+
+
 # DO NOT abuse this, meant for dev purposes, you should deploy your own deepmoji not hijack the demo site
 
 def get_emoji_scores(text):
