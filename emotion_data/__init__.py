@@ -1,5 +1,3 @@
-# https://en.wikipedia.org/wiki/Emotion_classification
-# https://en.wikipedia.org/wiki/Contrasting_and_categorization_of_emotions
 import random
 
 
@@ -109,7 +107,7 @@ def _get_dyads_map():
     return dyad_map
 
 
-DYADS_MAP = _get_dyads_map()
+DYAD_MAP = _get_dyads_map()
 
 
 def _get_opposite_emotion_map():
@@ -156,7 +154,7 @@ EMOTION_KIND_MAP = {"related to object properties":
                     'cathected': ["love", "hate"],
                     }
 
-HUMAINES_MAP = {
+HUMAINE_MAP = {
     "negative and forceful":
         ["anger", "annoyance", "contempt", "disgust", "irritation"],
     "negative and passive":
@@ -329,8 +327,8 @@ def _get_emotion_map():
             elif abs(emotion.emotional_flow) == 3:
                 emotion.intensity == "intense"
             # add the corresponding dyad
-            if name in DYADS_MAP:
-                emotion.dyad = DYADS_MAP[name]
+            if name in DYAD_MAP:
+                emotion.dyad = DYAD_MAP[name]
 
             # tag the opposite emotion
             if name in OPPOSITE_EMOTION_MAP:
@@ -343,8 +341,8 @@ def _get_emotion_map():
                     break
 
             # add a type if applicable
-            for emo_type in HUMAINES_MAP:
-                if name in HUMAINES_MAP[emo_type]:
+            for emo_type in HUMAINE_MAP:
+                if name in HUMAINE_MAP[emo_type]:
                     emotion.type = emo_type
                     break
             map[name] = emotion
@@ -360,8 +358,8 @@ def _get_emotion_map():
                 if emotion in EMOTION_KIND_MAP[kind]:
                     e.kind = kind
                     break
-            for emo_type in HUMAINES_MAP:
-                if emotion in HUMAINES_MAP[emo_type]:
+            for emo_type in HUMAINE_MAP:
+                if emotion in HUMAINE_MAP[emo_type]:
                     e.type = emo_type
                     break
             map[emotion] = e

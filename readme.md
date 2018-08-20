@@ -5,6 +5,10 @@ structured data to work with emotions
 this project was made for use with [LILACS](https://github.com/JarbasAl/LILACS/)
 
 
+reference - https://en.wikipedia.org/wiki/Contrasting_and_categorization_of_emotions
+
+
+
 # Emotion Dyads
 
 In 1980, Robert Plutchik constructed diagram of emotions visualising eight basic emotions: joy, trust, fear, surprise, sadness, disgust, anger and anticipation. 
