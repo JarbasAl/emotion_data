@@ -26,6 +26,8 @@ It contrasted anger, anticipation, joy, and trust as positive emotions, and fear
 
 dyads are represented by a DyadObject, you can look up the dyad for an emotion
 
+    from emotion_data import get_dyad
+    
     dyad = get_dyad("anger")
     pprint.pprint(dyad.__dict__)
     
@@ -63,6 +65,9 @@ composite emotions will have more than 1 dyad
          'mild_emotion': 'acceptance',
          'mild_opposite': 'boredom'}
         """
+
+dyad may be None for some emotions (open an issue!)
+
 
 # Emotion Types
 
@@ -278,18 +283,18 @@ data for 153 emotions is available, it should be accurate but occasionally incom
     
     """
     {'dimension': 'pleasantness',
-     'dyad': DyadObject:joy,
-     'emotional_flow': -2,
+     'dyad': DyadObject:sensitivity,
+     'emotional_flow': 2,
      'intensity': 'mild',
      'is_primary': False,
      'is_secondary': False,
      'is_tertiary': True,
-     'kind': '',
-     'name': 'anguish',
-     'opposite': 'joy',
-     'parent_emotion': EmotionObject:suffering,
-     'type': 'negative and passive',
-     'valence': -1}
+     'kind': 'event related',
+     'name': 'elation',
+     'opposite': 'sadness',
+     'parent_emotion': EmotionObject:cheerfulness,
+     'type': 'neutral',
+     'valence': 1}
     """
 
 

@@ -15,10 +15,10 @@ class EmotionDyad(object):
 
     @property
     def name(self):
-        return self.basic_emotion
+        return self.dimension
 
     def __repr__(self):
-        return "DyadObject:" + self.name
+        return "DyadObject:" + self.dimension
 
 
 class Emotion(object):
@@ -324,7 +324,10 @@ def _get_emotion_map():
             emotion.name = name
             emotion.dimension = dimension
             emotion.emotional_flow = flows[i]
-
+            if abs(emotion.emotional_flow) == 1:
+                emotion.intensity == "basic"
+            elif abs(emotion.emotional_flow) == 3:
+                emotion.intensity == "intense"
             # add the corresponding dyad
             if name in DYADS_MAP:
                 emotion.dyad = DYADS_MAP[name]
@@ -466,13 +469,36 @@ def _get_emotion_map():
     # assign kind
     for name in map:
         if not map[name].kind and map[name].dyad:
-            map[name].kind = map[map[name].dyad.name].kind
+            map[name].kind = map[map[name].dyad.basic_emotion].kind
     return map
 
 
 EMOTION_MAP = _get_emotion_map()
 
 EMOTION_NAMES = [EMOTION_MAP[e].name for e in EMOTION_MAP]
+
+POSITIVE_EMOTIONS = [EMOTION_MAP[e].name for e in EMOTION_MAP if EMOTION_MAP[e].valence]
+
+NEGATIVE_EMOTIONS = [EMOTION_MAP[e].name for e in EMOTION_MAP if EMOTION_MAP[e].valence < 0]
+
+NEUTRAL_EMOTIONS = [EMOTION_MAP[e].name for e in EMOTION_MAP if EMOTION_MAP[e].valence == 0]
+
+DIMENSION_MAP = {"sensitivity": [EMOTION_MAP[e].name for e in EMOTION_MAP if EMOTION_MAP[e].dimension == "sensitivity"],
+                 "attention": [EMOTION_MAP[e].name for e in EMOTION_MAP if EMOTION_MAP[e].dimension == "attention"],
+                 "pleasantness": [EMOTION_MAP[e].name for e in EMOTION_MAP if EMOTION_MAP[e].dimension == "pleasantness"],
+                 "aptitude": [EMOTION_MAP[e].name for e in EMOTION_MAP if EMOTION_MAP[e].dimension == "aptitude"]}
+
+EMOTION_KIND_MAP = {"related to object properties":
+                        [EMOTION_MAP[e].name for e in EMOTION_MAP if EMOTION_MAP[e].kind == "related to object properties"],
+                    'future appraisal': [EMOTION_MAP[e].name for e in EMOTION_MAP if EMOTION_MAP[e].kind == "future appraisal"],
+                    'event related': [EMOTION_MAP[e].name for e in EMOTION_MAP if EMOTION_MAP[e].kind == "event related"],
+                    'self appraisal': [EMOTION_MAP[e].name for e in EMOTION_MAP if EMOTION_MAP[e].kind == "self appraisal"],
+                    'social': [EMOTION_MAP[e].name for e in EMOTION_MAP if EMOTION_MAP[e].kind == "social"],
+                    'cathected': [EMOTION_MAP[e].name for e in EMOTION_MAP if EMOTION_MAP[e].kind == "cathected"]
+                    }
+
+# TODO update from generated emotions map
+# DYADS_MAP = {}
 
 
 def random_emotion():
