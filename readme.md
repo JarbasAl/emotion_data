@@ -24,39 +24,45 @@ It contrasted anger, anticipation, joy, and trust as positive emotions, and fear
 |    aptitude    | admiration |     trust    | acceptance |    boredom   |  disgust |  loathing |
 
 
-dyads are represented by a DyadObject
+dyads are represented by a DyadObject, you can look up the dyad for an emotion
 
-    from emotion_data import DYADS
+    dyad = get_dyad("anger")
+    pprint.pprint(dyad.__dict__)
     
-    print(DYADS)
-    
-    """ 
-    {'aptitude': DyadObject:surprise, 'attention': DyadObject:trust, 'pleasentness': DyadObject:fear, 'sensitivity': DyadObject:joy}
+    """
+        {'basic_emotion': 'fear',
+         'basic_opposite': 'anger',
+         'dimension': 'pleasentness',
+         'intense_emotion': 'terror',
+         'intense_opposite': 'rage',
+         'mild_emotion': 'apprehension',
+         'mild_opposite': 'annoyance'}
     """
 
-you can look up the dyad for an emotion
+composite emotions will have more than 1 dyad
 
-    from emotion_data import DYADS_MAP
-    
-    dyad = DYADS_MAP.get("anger")
-    if dyad:
-        print(dyad.type)
-        print(dyad.basic_emotion)
-        print(dyad.basic_opposite)
-        print(dyad.mild_emotion)
-        print(dyad.mild_opposite)
-        print(dyad.intense_emotion)
-        print(dyad.intense_opposite)
+        dyad = get_dyad("love")
+        if isinstance(dyad, list):
+            for d in dyad:
+                pprint.pprint(d.__dict__)
         
-    """
-    pleasentness
-    fear
-    anger
-    apprehension
-    annoyance
-    terror
-    rage
-    """
+        """
+            {'basic_emotion': 'joy',
+         'basic_opposite': 'sadness',
+         'dimension': 'sensitivity',
+         'intense_emotion': 'ecstasy',
+         'intense_opposite': 'grief',
+         'mild_emotion': 'serenity',
+         'mild_opposite': 'pensiveness'}
+         
+        {'basic_emotion': 'trust',
+         'basic_opposite': 'disgust',
+         'dimension': 'attention',
+         'intense_emotion': 'admiration',
+         'intense_opposite': 'loathing',
+         'mild_emotion': 'acceptance',
+         'mild_opposite': 'boredom'}
+        """
 
 # Emotion Types
 
@@ -224,80 +230,9 @@ A tree-structured list of emotions was described in Shaver et al. (1987), and al
                          'dislike',
                          'resentment'],
                 'torment': []}],
-     'fear': [{'horror': ['alarm',
-                          'shock',
-                          'fright',
-                          'terror',
-                          'panic',
-                          'hysteria',
-                          'mortification'],
-               'nervousness': ['anxiety',
-                               'suspense',
-                               'uneasiness',
-                               'apprehension',
-                               'worry',
-                               'distress',
-                               'dread']}],
-     'joy': [{'cheerfulness': ['amusement',
-                               'bliss',
-                               'gaiety',
-                               'glee',
-                               'jolliness',
-                               'joviality',
-                               'joy',
-                               'delight',
-                               'enjoyment',
-                               'gladness',
-                               'happiness',
-                               'jubilation',
-                               'elation',
-                               'satisfaction',
-                               'ecstasy',
-                               'euphoria'],
-              'contentment': ['pleasure'],
-              'enthrallment': ['rapture'],
-              'optimism': ['eagerness', 'hope'],
-              'pride': ['triumph'],
-              'relief': [],
-              'zest': ['enthusiasm',
-                       'zeal',
-                       'excitement',
-                       'thrill',
-                       'exhilaration']}],
-     'love': [{'affection': ['adoration',
-                             'fondness',
-                             'liking',
-                             'attraction',
-                             'caring',
-                             'tenderness',
-                             'compassion',
-                             'sentimentality'],
-               'longing': [],
-               'lust': ['desire', 'passion', 'infatuation']}],
-     'sadness': [{'disappointment': ['dismay', 'displeasure'],
-                  'misery': ['depression',
-                             'despair',
-                             'gloom',
-                             'glumness',
-                             'unhappiness',
-                             'grief',
-                             'sorrow',
-                             'woe',
-                             'melancholy'],
-                  'neglect': ['alienation',
-                              'defeatism',
-                              'dejection',
-                              'embarrassment',
-                              'homesickness',
-                              'humiliation',
-                              'insecurity',
-                              'insult',
-                              'isolation',
-                              'loneliness',
-                              'rejection'],
-                  'shame': ['guilt', 'regret', 'remorse'],
-                  'suffering': ['agony', 'anguish', 'hurt'],
-                  'sympathy': ['pity', 'mono no aware']}],
+     
+        ....
+     
      'surprise': [{'amazement': [], 'astonishment': []}]}
     """
 
@@ -374,6 +309,7 @@ Feelings are groups of emotions from different dyads:
             self.name = ""
             self.emotions = []
 
+
 TODO implement mappings for this
 
 
@@ -418,9 +354,28 @@ In general these are somewhat inaccurate and you will want to analyze the compon
 reference lists and mappings are also provided
 
 
-    from emotion_data import POSITIVE_EMOTIONS, NEGATIVE_EMOTIONS, EMOTION_NAMES, OPPOSITE_EMOTION_MAP, EMOTION_MAP, COMPOSITE_EMOTIONS, DIMENSION_MAP
+    from emotion_data import *
     import pprint
        
+    print(DYADS)
+    
+    """ 
+    {'aptitude': DyadObject:surprise, 'attention': DyadObject:trust, 'pleasentness': DyadObject:fear, 'sensitivity': DyadObject:joy}
+    """
+    
+    pprint.pprint(DYADS_MAP)
+    
+    """
+    {'acceptance': DyadObject:trust,
+    
+    ...
+    
+     'terror': DyadObject:fear,
+     'trust': DyadObject:trust,
+     'vigilance': DyadObject:surprise}
+    """
+    
+    
     pprint.pprint(DIMENSION_MAP)
 
     """

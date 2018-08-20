@@ -5,7 +5,7 @@ import random
 
 class EmotionDyad(object):
     def __init__(self):
-        self.type = "0"
+        self.dimension = "0"
         self.mild_emotion = ""
         self.mild_opposite = ""
         self.basic_emotion = ""
@@ -81,7 +81,7 @@ def _get_dyads():
     dyad_map = {}
     for d in dyads:
         dyad = EmotionDyad()
-        dyad.type = d
+        dyad.dimension = d
         dyad.mild_emotion = dyads[d][0].lower()
         dyad.mild_opposite = dyads[d][1].lower()
         dyad.basic_emotion = dyads[d][2].lower()
@@ -481,3 +481,13 @@ def random_emotion():
 
 def get_emotion(name):
     return EMOTION_MAP.get(name)
+
+
+def get_dyad(name):
+    emotion = get_emotion(name)
+    if emotion:
+        if emotion.is_composite:
+            return [e.dyad for e in emotion.components if e.dyad]
+        return emotion.dyad
+    return None
+
