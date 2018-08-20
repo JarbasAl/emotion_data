@@ -1,11 +1,9 @@
-# https://en.wikipedia.org/wiki/Emotion_classification
-# https://en.wikipedia.org/wiki/Contrasting_and_categorization_of_emotions
 import random
 
 
 class EmotionDyad(object):
     def __init__(self):
-        self.type = "0"
+        self.dimension = "0"
         self.mild_emotion = ""
         self.mild_opposite = ""
         self.basic_emotion = ""
@@ -15,10 +13,10 @@ class EmotionDyad(object):
 
     @property
     def name(self):
-        return self.basic_emotion
+        return self.dimension
 
     def __repr__(self):
-        return "DyadObject:" + self.name
+        return "DyadObject:" + self.dimension
 
 
 class Emotion(object):
@@ -65,12 +63,6 @@ class CompositeEmotion(Emotion):
         return "CompositeEmotionObject:" + self.name
 
 
-class Feeling(object):
-    def __init__(self):
-        self.name = ""
-        self.emotions = []
-
-
 def _get_dyads():
     dyads = {
         "sensitivity": ["Serenity", "Pensiveness", "Joy", "Sadness", "Ecstasy", "Grief"],
@@ -81,7 +73,7 @@ def _get_dyads():
     dyad_map = {}
     for d in dyads:
         dyad = EmotionDyad()
-        dyad.type = d
+        dyad.dimension = d
         dyad.mild_emotion = dyads[d][0].lower()
         dyad.mild_opposite = dyads[d][1].lower()
         dyad.basic_emotion = dyads[d][2].lower()
@@ -109,7 +101,7 @@ def _get_dyads_map():
     return dyad_map
 
 
-DYADS_MAP = _get_dyads_map()
+DYAD_MAP = _get_dyads_map()
 
 
 def _get_opposite_emotion_map():
@@ -156,7 +148,7 @@ EMOTION_KIND_MAP = {"related to object properties":
                     'cathected': ["love", "hate"],
                     }
 
-HUMAINES_MAP = {
+HUMAINE_MAP = {
     "negative and forceful":
         ["anger", "annoyance", "contempt", "disgust", "irritation"],
     "negative and passive":
@@ -291,25 +283,25 @@ EMOTION_TREE = {
 }
 
 COMPOSITE_EMOTIONS = {
-    "aggressiveness": [("rage", "vigilance"), ("anger", "vigilance")],
-    "rejection": [("rage", "amazement"), ("anger", "amazement")],
-    "rivalry": [("rage", "admiration"), ("anger", "admiration")],
-    "contempt": [("rage", "loathing"), ("anger", "loathing")],
+    "aggressiveness": [("rage", "vigilance")],
+    "rejection": [("rage", "amazement")],
+    "rivalry": [("rage", "admiration")],
+    "contempt": [("rage", "loathing")],
 
-    "anxiety": [("terror", "vigilance"), ("fear", "vigilance")],
-    "awe": [("terror", "amazement"), ("fear", "amazement")],
-    "submission": [("terror", "admiration"), ("fear", "admiration")],
-    "coercion": [("terror", "loathing"), ("fear", "loathing")],
+    "anxiety": [("terror", "vigilance")],
+    "awe": [("terror", "amazement")],
+    "submission": [("terror", "admiration")],
+    "coercion": [("terror", "loathing")],
 
-    "optimism": [("ecstasy", "vigilance"), ("joy", "vigilance")],
-    "frivolity": [("ecstasy", "amazement"), ("joy", "amazement")],
-    "love": [("ecstasy", "admiration"), ("joy", "admiration")],
-    "gloat": [("ecstasy", "loathing"), ("joy", "loathing")],
+    "optimism": [("ecstasy", "vigilance")],
+    "frivolity": [("ecstasy", "amazement")],
+    "love": [("ecstasy", "admiration")],
+    "gloat": [("ecstasy", "loathing")],
 
-    "frustration": [("grief", "vigilance"), ("sadness", "vigilance")],
-    "disapproval": [("grief", "amazement"), ("sadness", "amazement")],
-    "envy": [("grief", "admiration"), ("sadness", "amazement")],
-    "remorse": [("grief", "loathing"), ("sadness", "amazement")]
+    "frustration": [("grief", "vigilance")],
+    "disapproval": [("grief", "amazement")],
+    "envy": [("grief", "admiration")],
+    "remorse": [("grief", "loathing")]
 }
 
 
@@ -324,10 +316,13 @@ def _get_emotion_map():
             emotion.name = name
             emotion.dimension = dimension
             emotion.emotional_flow = flows[i]
-
+            if abs(emotion.emotional_flow) == 1:
+                emotion.intensity == "basic"
+            elif abs(emotion.emotional_flow) == 3:
+                emotion.intensity == "intense"
             # add the corresponding dyad
-            if name in DYADS_MAP:
-                emotion.dyad = DYADS_MAP[name]
+            if name in DYAD_MAP:
+                emotion.dyad = DYAD_MAP[name]
 
             # tag the opposite emotion
             if name in OPPOSITE_EMOTION_MAP:
@@ -340,8 +335,8 @@ def _get_emotion_map():
                     break
 
             # add a type if applicable
-            for emo_type in HUMAINES_MAP:
-                if name in HUMAINES_MAP[emo_type]:
+            for emo_type in HUMAINE_MAP:
+                if name in HUMAINE_MAP[emo_type]:
                     emotion.type = emo_type
                     break
             map[name] = emotion
@@ -357,8 +352,8 @@ def _get_emotion_map():
                 if emotion in EMOTION_KIND_MAP[kind]:
                     e.kind = kind
                     break
-            for emo_type in HUMAINES_MAP:
-                if emotion in HUMAINES_MAP[emo_type]:
+            for emo_type in HUMAINE_MAP:
+                if emotion in HUMAINE_MAP[emo_type]:
                     e.type = emo_type
                     break
             map[emotion] = e
@@ -466,13 +461,36 @@ def _get_emotion_map():
     # assign kind
     for name in map:
         if not map[name].kind and map[name].dyad:
-            map[name].kind = map[map[name].dyad.name].kind
+            map[name].kind = map[map[name].dyad.basic_emotion].kind
     return map
 
 
 EMOTION_MAP = _get_emotion_map()
 
 EMOTION_NAMES = [EMOTION_MAP[e].name for e in EMOTION_MAP]
+
+POSITIVE_EMOTIONS = [EMOTION_MAP[e].name for e in EMOTION_MAP if EMOTION_MAP[e].valence]
+
+NEGATIVE_EMOTIONS = [EMOTION_MAP[e].name for e in EMOTION_MAP if EMOTION_MAP[e].valence < 0]
+
+NEUTRAL_EMOTIONS = [EMOTION_MAP[e].name for e in EMOTION_MAP if EMOTION_MAP[e].valence == 0]
+
+DIMENSION_MAP = {"sensitivity": [EMOTION_MAP[e].name for e in EMOTION_MAP if EMOTION_MAP[e].dimension == "sensitivity"],
+                 "attention": [EMOTION_MAP[e].name for e in EMOTION_MAP if EMOTION_MAP[e].dimension == "attention"],
+                 "pleasantness": [EMOTION_MAP[e].name for e in EMOTION_MAP if EMOTION_MAP[e].dimension == "pleasantness"],
+                 "aptitude": [EMOTION_MAP[e].name for e in EMOTION_MAP if EMOTION_MAP[e].dimension == "aptitude"]}
+
+EMOTION_KIND_MAP = {"related to object properties":
+                        [EMOTION_MAP[e].name for e in EMOTION_MAP if EMOTION_MAP[e].kind == "related to object properties"],
+                    'future appraisal': [EMOTION_MAP[e].name for e in EMOTION_MAP if EMOTION_MAP[e].kind == "future appraisal"],
+                    'event related': [EMOTION_MAP[e].name for e in EMOTION_MAP if EMOTION_MAP[e].kind == "event related"],
+                    'self appraisal': [EMOTION_MAP[e].name for e in EMOTION_MAP if EMOTION_MAP[e].kind == "self appraisal"],
+                    'social': [EMOTION_MAP[e].name for e in EMOTION_MAP if EMOTION_MAP[e].kind == "social"],
+                    'cathected': [EMOTION_MAP[e].name for e in EMOTION_MAP if EMOTION_MAP[e].kind == "cathected"]
+                    }
+
+# TODO update from generated emotions map
+# DYADS_MAP = {}
 
 
 def random_emotion():
@@ -481,3 +499,14 @@ def random_emotion():
 
 def get_emotion(name):
     return EMOTION_MAP.get(name)
+
+
+def get_dyad(name):
+    emotion = get_emotion(name)
+    if emotion:
+        if emotion.is_composite:
+            return [e.dyad for e in emotion.components if e.dyad]
+        return emotion.dyad
+    return None
+
+
