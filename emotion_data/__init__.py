@@ -171,10 +171,11 @@ HUMAINE_MAP = {
         ["Interest", "Politeness", "Surprise"]
 }
 
+# NOTE Parrott's emotions by groups contains some "loops", these were filtered
+# NOTE in Parrott's emotions by groups disgust is part of anger, but not according to Plutchik's
 EMOTION_TREE = {
-    'anger': [{'disgust': ['revulsion',
-                           'contempt',
-                           'loathing'],
+    'disgust': [{'revulsion': []}, {'contempt': []}, {'loathing': []}],
+    'anger': [{
                'envy': ['jealousy'],
                'exasperation': ['frustration'],
                'irritability': ['aggravation',
@@ -317,9 +318,9 @@ def _get_emotion_map():
             emotion.dimension = dimension
             emotion.emotional_flow = flows[i]
             if abs(emotion.emotional_flow) == 1:
-                emotion.intensity == "basic"
+                emotion.intensity = "basic"
             elif abs(emotion.emotional_flow) == 3:
-                emotion.intensity == "intense"
+                emotion.intensity = "intense"
             # add the corresponding dyad
             if name in DYAD_MAP:
                 emotion.dyad = DYAD_MAP[name]

@@ -73,7 +73,13 @@ EMOJI_MAP = {
 
 # http://kt.ijs.si/data/Emoji_sentiment_ranking/
 # TODO
-EMOJI_SENTIMENT = {}
+EMOJI_FEELING = {
+    0: "delight", # delight ['joy', 'surprise']
+    1: "impatience", # impatience ['boredom', 'annoyance']
+    6: "acknowledgement", #acknowledgement ['serenity', 'acceptance']
+    25: "acquiescence", #acquiescence ['acceptance', 'apprehension']
+    32: "outrage", #outrage ['surprise', 'anger']
+    }
 
 
 # DO NOT abuse this, meant for dev purposes, you should deploy your own deepmoji not hijack the demo site
@@ -105,3 +111,8 @@ def get_emojis(text):
     except:
         return []
 
+
+from emotion_data.feelings import FEELINGS_MAP
+
+for k in FEELINGS_MAP:
+    print(k, [e.name for e in FEELINGS_MAP[k].emotions])
