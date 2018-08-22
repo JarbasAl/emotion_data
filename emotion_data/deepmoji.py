@@ -109,3 +109,4 @@ def test():
                       'This is the shit']
     for t in TEST_SENTENCES:
         print(get_emojis(t))
+

@@ -1,84 +1,124 @@
-from emotion_data import get_emotion, get_dyad
+from emotion_data.emotions import EMOTIONS, DIMENSIONS
 import random
+
+
+OPPOSITE_FEELINGS_NAMES = {
+    "optimism": "disapproval",
+    "hope": "unbelief",
+    "anxiety": "outrage",
+    "love": "remorse",
+    "guilt": "envy",
+    "delight": "pessimism",
+    "submission": "contempt",
+    "curiosity": "cynicism",
+    "sentimentality": "morbidness",
+    "despair": "pride",
+    "shame": "dominance",
+    "bemusement": "dismay",
+    "zeal": "horror",
+    "acknowledgment": "listlessness",
+    "devotion": "shame",
+    "acquiescence": "impatience",
+    "subservience": "hatred",
+    "wariness": "disfavor",
+    "petrification": "domination"
+}
 
 
 class Feeling(object):
     def __init__(self):
         self.name = ""
         self.emotions = []
-        self.dyads = []
+        self.dimensions = []
 
     def __repr__(self):
         return "FeelingObject:" + self.name
 
 
-def _get_feelings():
-    feels = {
-        "Optimism": ["Anticipation", "joy"],
-        "Disapproval": ["Surprise", "Sadness"],
-        "Hope": ["Anticipation", "Trust"],
-        "Unbelief": ["Surprise", "Disgust"],
-        "Anxiety": ["Anticipation", "Fear"],
-        "Outrage": ["Surprise", "Anger"],
-        "Love": ["Joy", "Trust"],
-        "Remorse": ["Sadness", "Disgust"],
-        "Guilt": ["Joy", "Fear"],
-        "Envy": ["Sadness", "Anger"],
-        "Delight": ["Joy", "Surprise"],
-        "Pessimism": ["Sadness", "Anticipation"],
-        "Submission": ["Trust", "Fear"],
-        "Contempt": ["Disgust", "Anger"],
-        "Curiosity": ["Trust", "Surprise"],
-        "Cynicism": ["Disgust", "Anticipation"],
-        "Sentimentality": ["Trust", "Sadness"],
-        "Morbidness": ["Disgust", "Joy"],
-        "Awe": ["Fear", "Surprise"],
-        "Aggressiveness": ["Anger", "Anticipation"],
-        "Despair": ["Fear", "Sadness"],
-        "Pride": ["Anger", "Joy"],
-        "shame": ["Fear", "Disgust"],
-        "Dominance": ["Anger", "Trust"],
-        "Bemusement": ["Interest", "Serenity"],
-        "Dismay": ["Distraction", "Pensiveness"],
-        "Zeal": ["Vigilance", "Ecstasy"],
-        "Horror": ["Amazement", "Grief"],
-        "Acknowledgement": ["Serenity", "Acceptance"],
-        "Listlessness": ["Pensiveness", "Boredom"],
-        "Devotion": ["Ecstasy", "Admiration"],
-        "Shame": ["Grief", "Loathing"],
-        "Acquiescence": ["acceptance", "Apprehension"],
-        "Impatience": ["Boredom", "Annoyance"],
-        "Subservience": ["Admiration", "Terror"],
-        "Hatred": ["Loathing", "Rage"],
-        "Wariness": ["Apprehension", "Distraction"],
-        "Disfavor": ["Annoyance", "Interest"],
-        "Petrification": ["Terror", "Amazement"],
-        "Domination": ["Rage", "Vigilance"]
-    }
-    map = {}
+def _get_feeling_emotions():
+    bucket = {}
+    feels = {'acknowledgement': ['serenity', 'acceptance'],
+             'acquiescence': ['acceptance', 'apprehension'],
+             'aggressiveness': ['anger', 'anticipation'],
+             'anxiety': ['anticipation', 'fear'],
+             'awe': ['fear', 'surprise'],
+             'bemusement': ['interest', 'serenity'],
+             'contempt': ['disgust', 'anger'],
+             'curiosity': ['trust', 'surprise'],
+             'cynicism': ['disgust', 'anticipation'],
+             'delight': ['joy', 'surprise'],
+             'despair': ['fear', 'sadness'],
+             'devotion': ['ecstasy', 'admiration'],
+             'disapproval': ['surprise', 'sadness'],
+             'disfavor': ['annoyance', 'interest'],
+             'dismay': ['distraction', 'pensiveness'],
+             'dominance': ['anger', 'trust'],
+             'domination': ['rage', 'vigilance'],
+             'envy': ['sadness', 'anger'],
+             'fatalism': ['vigilance', 'fear'],
+             'guilt': ['joy', 'fear'],
+             'hatred': ['loathing', 'rage'],
+             'hope': ['anticipation', 'trust'],
+             'horror': ['amazement', 'grief'],
+             'impatience': ['boredom', 'annoyance'],
+             'listlessness': ['pensiveness', 'boredom'],
+             'love': ['joy', 'trust'],
+             'morbidness': ['disgust', 'joy'],
+             'optimism': ['anticipation', 'joy'],
+             'outrage': ['surprise', 'anger'],
+             'pessimism': ['sadness', 'anticipation'],
+             'petrification': ['terror', 'amazement'],
+             'pride': ['anger', 'joy'],
+             'remorse': ['sadness', 'disgust'],
+             'sentimentality': ['trust', 'sadness'],
+             'shame': ['grief', 'loathing'],
+             'submission': ['trust', 'fear'],
+             'subservience': ['admiration', 'terror'],
+             'unbelief': ['surprise', 'disgust'],
+             'wariness': ['apprehension', 'distraction'],
+             'zeal': ['vigilance', 'ecstasy']}
     for feeling in feels:
+        emotions = feels[feeling]
+        bucket[feeling] = []
+        for e in emotions:
+            bucket[feeling].append(EMOTIONS[e])
+    return bucket
+
+
+FEELINGS_TO_EMOTION_MAP = _get_feeling_emotions()
+
+
+def _get_feelings():
+    bucket = {}
+    for feeling in FEELINGS_TO_EMOTION_MAP:
         f = Feeling()
         f.name = feeling.lower()
-        for emotion in feels[feeling]:
-            f.emotions.append(get_emotion(emotion.lower()))
-            d = get_dyad(emotion.lower())
+        for emotion in FEELINGS_TO_EMOTION_MAP[feeling]:
+            f.emotions.append(emotion)
+            d = DIMENSIONS.get(emotion.name)
 
             if isinstance(d, list):
-                for dyad in d:
-                    f.dyads.append(dyad)
+                for dimension in d:
+                    f.dimensions.append(dimension)
             elif d:
-                f.dyads.append(d)
-        map[feeling.lower()] = f
-    return map
+                f.dimensions.append(d)
+        bucket[feeling.lower()] = f
+    return bucket
 
 
-FEELINGS_MAP = _get_feelings()
+FEELINGS = _get_feelings()
 
 
 def get_feeling(name):
-    return FEELINGS_MAP.get(name)
+    return FEELINGS.get(name)
 
 
 def random_feeling():
-    return FEELINGS_MAP[random.choice(list(FEELINGS_MAP.keys()))]
+    return FEELINGS[random.choice(list(FEELINGS.keys()))]
 
+
+if __name__ == "__main__":
+    from pprint import pprint
+
+    pprint(FEELINGS_TO_EMOTION_MAP)
+    pprint(FEELINGS)
