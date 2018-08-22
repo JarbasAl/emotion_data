@@ -72,14 +72,7 @@ EMOJI_MAP = {
 
 
 # http://kt.ijs.si/data/Emoji_sentiment_ranking/
-# TODO
-EMOJI_FEELING = {
-    0: "delight", # delight ['joy', 'surprise']
-    1: "impatience", # impatience ['boredom', 'annoyance']
-    6: "acknowledgement", #acknowledgement ['serenity', 'acceptance']
-    25: "acquiescence", #acquiescence ['acceptance', 'apprehension']
-    32: "outrage", #outrage ['surprise', 'anger']
-    }
+EMOJI_SENTIMENT = {}
 
 
 # DO NOT abuse this, meant for dev purposes, you should deploy your own deepmoji not hijack the demo site
@@ -87,32 +80,33 @@ EMOJI_FEELING = {
 def get_emoji_scores(text):
     params = {"q": text}
     emojis = {}
-    try:
-        scores = requests.get("https://deepmoji.mit.edu/api/", params=params).json()["scores"]
-        for idx, score in enumerate(scores):
-            if score:
-                emojis[idx] = score
-    except:
-        pass
+    scores = requests.get("https://deepmoji.mit.edu/api/", params=params).json()["scores"]
+    for idx, score in enumerate(scores):
+        if score:
+            emojis[idx] = score
     return emojis
 
 
 def get_emojis(text):
     params = {"q": text}
     emojis = {}
-    try:
-        scores = requests.get("https://deepmoji.mit.edu/api/", params=params).json()["scores"]
-        for idx, score in enumerate(scores):
-            if score:
-                emojis[idx] = score
-        scores = sorted(emojis, key=lambda k: emojis[k])
-        scores.reverse()
-        return [EMOJI_MAP[s] for s in scores]
-    except:
-        return []
+    scores = requests.get("https://deepmoji.mit.edu/api/", params=params).json()["scores"]
+    for idx, score in enumerate(scores):
+        if score:
+            emojis[idx] = score
+    scores = sorted(emojis, key=lambda k: emojis[k])
+    scores.reverse()
+    return [EMOJI_MAP[s] for s in scores]
 
 
-from emotion_data.feelings import FEELINGS_MAP
+def test():
+    TEST_SENTENCES = ['I love mom\'s cooking',
+                      'I love how you never reply back..',
+                      'I love cruising with my homies',
+                      'I love messing with yo mind!!',
+                      'I love you and now you\'re just gone..',
+                      'This is shit',
+                      'This is the shit']
+    for t in TEST_SENTENCES:
+        print(get_emojis(t))
 
-for k in FEELINGS_MAP:
-    print(k, [e.name for e in FEELINGS_MAP[k].emotions])
