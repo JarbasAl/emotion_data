@@ -10,7 +10,7 @@ reference - https://positivepsychologyprogram.com/emotion-wheel/
 
 # Install
 
-
+    pip install numpy
     pip install emotion_data
     
     

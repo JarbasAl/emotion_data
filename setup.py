@@ -4,7 +4,7 @@ setup(
     name='emotion_data',
     version='0.5',
     packages=['emotion_data'],
-    url='',
+    url='https://github.com/JarbasAl/emotion_data',
     license='MIT',
     author='jarbasAI',
     author_email='jarbasai@mailfence.com',
