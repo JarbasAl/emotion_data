@@ -1,5 +1,5 @@
 import random
-from emotion_data.plutchik import DIMENSIONS, COMPOSITE_EMOTIONS_NAMES, CompositeEmotion, CompositeEmotionalDimension
+from emotion_data.plutchik import DIMENSIONS
 
 
 def _get_emotion_map():
@@ -14,20 +14,6 @@ def _get_emotion_map():
         bucket[dimension.mild_opposite.name] = dimension.mild_opposite
         bucket[dimension.intense_emotion.name] = dimension.intense_emotion
         bucket[dimension.intense_opposite.name] = dimension.intense_opposite
-
-    # create composite emotions for dimension combinations
-    for composite_emotion in COMPOSITE_EMOTIONS_NAMES:
-        e = CompositeEmotion(composite_emotion)
-        d = CompositeEmotionalDimension()
-        for emotion in COMPOSITE_EMOTIONS_NAMES[composite_emotion]:
-            emo = bucket.get(emotion)
-            e.components.append(emo)
-            d.components.append(emo.dimension)
-            d.axis.append(emo.dimension.axis)
-            e.dimension = d
-
-            bucket[composite_emotion] = e
-
     return bucket
 
 

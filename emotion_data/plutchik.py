@@ -1,8 +1,12 @@
-from emotion_data.reference_maps import EMOTION_CONTRASTS, POSITIVE, NEGATIVE
+from emotion_data.reference_maps import EMOTION_CONTRASTS
+import numpy as np
+from copy import copy
+# from emotion_data.feelings import Feeling
+# from emotion_data.behaviour import Behaviour, BehavioralReaction
 
 
 PRIMARY_EMOTION_NAMES = ["serenity", "pensiveness", "acceptance", "boredom", "apprehension", "annoyance", "distraction",
-                    "interest"]
+                         "interest"]
 SECONDARY_EMOTIONS_NAMES = ["joy", "sadness", "trust", "disgust", "fear", "anger", "surprise", "anticipation"]
 
 TERTIARY_EMOTIONS_NAMES = ["ecstasy", "grief", "admiration", "loathing", "terror", "rage", "amazement", "vigilance"]
@@ -11,72 +15,6 @@ HOURGLASS_OF_EMOTIONS = {"sensitivity": ["rage", "anger", "annoyance", "apprehen
                          "attention": ["vigilance", "anticipation", "interest", "distraction", "surprise", "amazement"],
                          "pleasantness": ["ecstasy", "joy", "serenity", "pensiveness", "sadness", "grief"],
                          "aptitude": ["admiration", "trust", "acceptance", "boredom", "disgust", "loathing"]}
-
-COMPOSITE_EMOTIONS_NAMES = {
-    "aggressiveness": ["rage", "vigilance"],
-    "rejection": ["rage", "amazement"],
-    "rivalry": ["rage", "admiration"],
-    "contempt": ["rage", "loathing"],
-
-    "anxiety": ["terror", "vigilance"],
-    "awe": ["terror", "amazement"],
-    "submission": ["terror", "admiration"],
-    "coercion": ["terror", "loathing"],
-
-    "optimism": ["ecstasy", "vigilance"],
-    "frivolity": ["ecstasy", "amazement"],
-    "love": ["ecstasy", "admiration"],
-    "gloat": ["ecstasy", "loathing"],
-
-    "frustration": ["grief", "vigilance"],
-    "disapproval": ["grief", "amazement"],
-    "envy": ["grief", "admiration"],
-    "remorse": ["grief", "loathing"]
-}
-
-OPPOSITE_EMOTIONS_NAMES = {
-    "annoyance": "apprehension",
-    "interest": "distraction",
-    "serenity": "pensiveness",
-    "acceptance": "boredom",
-    "trust": "disgust",
-    "joy": "sadness",
-    "anticipation": "surprise",
-    "anger": "fear",
-    "rage": "terror",
-    "vigilance": "amazement",
-    "ecstasy": "grief",
-    "admiration": "loathing",
-    "apprehension": "annoyance",
-    "distraction": "interest",
-    "pensiveness": "serenity",
-    "boredom": "acceptance",
-    "disgust": "trust",
-    "sadness": "joy",
-    "surprise": "anticipation",
-    "fear": "anger",
-    "terror": "rage",
-    "amazement": "vigilance",
-    "grief": "ecstasy",
-    "loathing": "admiration",
-    # composite
-    "contempt": "submission",
-    "rivalry": "coercion",
-    "anxiety": "rejection",
-    "awe": "aggressiveness",
-    "love": "remorse",
-    "envy": "gloat",
-    "frivolity": "frustration",
-    "disapproval": "optimism",
-    "submission": "contempt",
-    "coercion": "rivalry",
-    "rejection": "anxiety",
-    "aggressiveness": "awe",
-    "remorse": "love",
-    "gloat": "envy",
-    "frustration": "frivolity",
-    "optimism": "disapproval"
-}
 
 
 # TODO science this instead of eye balling
@@ -98,14 +36,14 @@ EMOTION_KIND_NAMES['event related'].append("acceptance")
 EMOTION_KIND_NAMES['event related'].append("ecstasy")
 EMOTION_KIND_NAMES['event related'].append("apprehension")
 EMOTION_KIND_NAMES['event related'].append("loathing")
-EMOTION_KIND_NAMES['event related'].append("gloat") # TODO where does this fit better?
+EMOTION_KIND_NAMES['event related'].append("gloat")  # TODO where does this fit better?
 
 EMOTION_KIND_NAMES['social'].append("coercion")
 EMOTION_KIND_NAMES['social'].append("trust")
 EMOTION_KIND_NAMES['social'].append("submission")
 EMOTION_KIND_NAMES['social'].append("rivalry")
 EMOTION_KIND_NAMES['social'].append("rejection")
-EMOTION_KIND_NAMES['social'].append("frivolity") # TODO where does this fit better?
+EMOTION_KIND_NAMES['social'].append("frivolity")  # TODO where does this fit better?
 
 EMOTION_KIND_NAMES['future appraisal'].append("pensiveness")
 EMOTION_KIND_NAMES['future appraisal'].append("optimism")
@@ -117,8 +55,25 @@ EMOTION_KIND_NAMES['future appraisal'].append("anticipation")
 
 class Emotion(object):
     def __init__(self, name, dimension=None):
-        self.name = name
-        self.dimension = dimension  # EmotionDimension object
+        self._name = name
+        if dimension and isinstance(dimension, str):
+            dimension = DIMENSIONS[dimension]
+        self._dimension = dimension  # dimension name
+        self.intensity_offset = 0
+        self._kind = ""
+
+    @property
+    def dimension(self):
+        return self._dimension or DIMENSIONS.get(self.name)
+
+    @property
+    def name(self):
+        if self.intensity_offset <= 0:
+            return self._name
+        if self.emotional_flow < 0:
+            return self.intensity + " " + self.dimension.intense_opposite.name
+        if self.emotional_flow > 0:
+            return self.intensity + " " + self.dimension.intense_emotion.name
 
     @property
     def triggered_reactions(self):
@@ -126,7 +81,7 @@ class Emotion(object):
         reactions = []
         for reaction in REACTION_TO_EMOTION_MAP:
             emo = REACTION_TO_EMOTION_MAP[reaction]
-            if emo.name == self.name:
+            if emo.name == self._name:
                 reactions.append(REACTIONS[reaction])
         return reactions
 
@@ -135,9 +90,9 @@ class Emotion(object):
         if self.is_primary:
             return self
         if self.emotional_flow < 0:
-            return self.dimension.basic_opposite
+            return self._dimension.basic_opposite
         else:
-            return self.dimension.basic_emotion
+            return self._dimension.basic_emotion
 
     @property
     def parent_emotion(self):
@@ -145,135 +100,507 @@ class Emotion(object):
             return None
         if self.is_secondary:
             if self.emotional_flow < 0:
-                return self.dimension.basic_opposite
+                return self._dimension.basic_opposite
             elif self.emotional_flow > 0:
-                return self.dimension.basic_emotion
+                return self._dimension.basic_emotion
         elif self.is_tertiary:
             if self.emotional_flow < 0:
-                return self.dimension.mild_opposite
+                return self._dimension.mild_opposite
             elif self.emotional_flow > 0:
-                return self.dimension.mild_emotion
+                return self._dimension.mild_emotion
         return None
 
     @property
     def opposite_emotion(self):
         if self.is_primary and self.emotional_flow > 0:
-            return self.dimension.basic_opposite
+            return self._dimension.basic_opposite
         elif self.is_primary and self.emotional_flow < 0:
-            return self.dimension.basic_emotion
+            return self._dimension.basic_emotion
         elif self.is_secondary and self.emotional_flow > 0:
-            return self.dimension.mild_opposite
+            return self._dimension.mild_opposite
         elif self.is_secondary and self.emotional_flow < 0:
-            return self.dimension.mild_emotion
+            return self._dimension.mild_emotion
         elif self.is_tertiary and self.emotional_flow > 0:
-            return self.dimension.intense_opposite
+            return self._dimension.intense_opposite
         elif self.is_tertiary and self.emotional_flow < 0:
-            return self.dimension.intense_emotion
+            return self._dimension.intense_emotion
         return None
 
     @property
     def is_primary(self):
-        return self.name in PRIMARY_EMOTION_NAMES and not self.is_composite
+        return self._name in PRIMARY_EMOTION_NAMES and not self.is_composite
 
     @property
     def is_secondary(self):
-        return self.name in SECONDARY_EMOTIONS_NAMES and not self.is_composite
+        return self._name in SECONDARY_EMOTIONS_NAMES and not self.is_composite
 
     @property
     def is_tertiary(self):
-        return self.name in TERTIARY_EMOTIONS_NAMES and not self.is_composite
+        return self._name in TERTIARY_EMOTIONS_NAMES and not self.is_composite
+
+    @property
+    def is_hyper(self):
+        return self.intensity_offset > 0
 
     @property
     def type(self):
-        # TODO science this instead of eye balling
-        if self.is_composite:
-            pass
-        if self.emotional_flow < 0:
-            # negative
-            if self.dimension.axis == "sensitivity":
-                return "negative and forceful"
-            if self.dimension.axis == "aptitude":
-                return "negative and passive"
-            if self.dimension.axis == "attention":
-                return "reactive"
-            if self.dimension.axis == "pleasantness":
-                return "negative and not in control"
+        types = []
+        valence = 0
+        dim = self.dimension
+
+        # type by dimension
+        if "sensitivity" in dim.axis and abs(self.emotional_flow) > 1:
+            types.append("lively")
+        if "attention" in dim.axis and abs(self.emotional_flow) > 1:
+            types.append("strong")
+
+        # valence by dimension
+        if "sensitivity" in dim.axis:
+            valence -= abs(self.emotional_flow)
+        if "attention" in dim.axis:
+            valence += abs(self.emotional_flow)
+        if "pleasantness" in dim.axis and self.emotional_flow:
+            valence += self.emotional_flow
+        if "pleasantness" in dim.axis and not self.emotional_flow:
+            valence -= self.emotional_flow
+        if "aptitude" in dim.axis and self.emotional_flow:
+            valence += self.emotional_flow
+        if "aptitude" in dim.axis and not self.emotional_flow:
+            valence -= self.emotional_flow
+
+        # type by column/dyad
+        if abs(self.emotional_flow) == 2:
+            types.append("not in control")
+        elif abs(self.emotional_flow) == 1:
+            types.append("quiet")
+        elif abs(self.emotional_flow) == 3:
+            types.append("forceful")
+
+        # type by valence
+        if valence > 0:
+            types.insert(0, "positive")
+        elif valence == 0:
+            types.insert(0, "neutral")
         else:
-            # positive
-            if self.dimension.axis == "attention":
-                return "agitation"
-            if self.dimension.axis == "pleasantness":
-                return "positive and lively"
-            if self.dimension.axis == "aptitude":
-                return "quiet positive"
-            if self.dimension.axis == "sensitivity":
-                return "negative and forceful"
+            types.insert(0, "negative")
+        return " and ".join(types)
+
 
     @property
     def kind(self):
         # TODO science this instead of eye balling
         for kind in EMOTION_KIND_NAMES:
-            if self.name in EMOTION_KIND_NAMES[kind]:
+            if self._name in EMOTION_KIND_NAMES[kind]:
                 return kind
-        # if self.parent_emotion:
-        #    return self.parent_emotion.kind
-        # if self.base_emotion and not self.is_primary:
-        #    return self.base_emotion.kind
-        # if self.opposite_emotion and self.opposite_emotion.kind:
-        #    return self.opposite_emotion.kind
-        return ""
+        return self._kind
 
     @property
     def emotional_flow(self):
-        if self.is_primary and self.dimension.basic_emotion.name == self.name:
+        if self.is_primary and self._dimension.basic_emotion.name == self._name:
             return 1
-        elif self.is_primary and self.dimension.basic_opposite.name == self.name:
+        elif self.is_primary and self._dimension.basic_opposite.name == self._name:
             return -1
-        elif self.is_secondary and self.dimension.mild_emotion.name == self.name:
+        elif self.is_secondary and self._dimension.mild_emotion.name == self._name:
             return 2
-        elif self.is_secondary and self.dimension.mild_opposite.name == self.name:
+        elif self.is_secondary and self._dimension.mild_opposite.name == self._name:
             return -2
-        elif self.is_tertiary and self.dimension.intense_emotion.name == self.name:
+        elif self.is_tertiary and self._dimension.intense_emotion.name == self._name:
             return 3
-        elif self.is_tertiary and self.dimension.intense_opposite.name == self.name:
+        elif self.is_tertiary and self._dimension.intense_opposite.name == self._name:
             return -3
-
         return 0
 
     @property
     def valence(self):
-        if self.emotional_flow:
-            return 1
-        elif self.emotional_flow < 0:
-            return - 1
-        elif self.name in POSITIVE:
-            return 1
-        elif self.name in NEGATIVE:
-            return -1
-        elif "negative" in self.type:
-            return -1
-        elif "positive" in self.type:
-            return 1
-        return 0
+        return bool(self.emotional_flow)
 
     @property
     def intensity(self):
+
+        if abs(self.intensity_offset) == 1:
+            return "mega"
+        if abs(self.intensity_offset) == 2:
+            return "extreme"
+        if abs(self.intensity_offset) >= 3:
+            return "hyper"
+
         if abs(self.emotional_flow) == 1:
             return "basic"
         if abs(self.emotional_flow) == 2:
             return "mild"
         if abs(self.emotional_flow) == 3:
             return "intense"
-        if self.parent_emotion:
-            return self.parent_emotion.intensity
-        return ""
+
+        return "neutral"
 
     @property
     def is_composite(self):
         return False
 
+    def emotion_from_flow(self, flow):
+        flow = int(flow)
+        # how to handle invalid flows?
+        flow = 9 if flow > 9 else flow if flow > -9 else -9
+        offset = abs(flow) - 3
+        flow = 3 if flow > 3 else flow if flow > -3 else -3
+        if flow == 1:
+            emo = copy(self._dimension.basic_emotion)
+            emo.intensity_offset = offset
+            return emo
+        elif flow == 2:
+            emo = copy(self._dimension.mild_emotion)
+            emo.intensity_offset = offset
+            return emo
+        elif flow == 3:
+            emo = copy(self._dimension.intense_emotion)
+            emo.intensity_offset = offset
+            return emo
+        elif flow == -1:
+            emo = copy(self._dimension.basic_opposite)
+            emo.intensity_offset = offset
+            return emo
+        elif flow == -2:
+            emo = copy(self._dimension.mild_opposite)
+            emo.intensity_offset = offset
+            return emo
+        elif flow == -3:
+            emo = copy(self._dimension.intense_opposite)
+            emo.intensity_offset = offset
+            return emo
+        return copy(Neutrality())
+
     def __repr__(self):
         return "EmotionObject:" + self.name
+
+    def __str__(self):
+        return self.name
+    # +, -, *, @, /, //, %, divmod(), <<, >>, &, ^, |
+    # TODO radds
+
+    @staticmethod
+    def string_to_emotion(string=""):
+        from emotion_data.emotions import EMOTIONS
+        from emotion_data.feelings import FEELINGS
+        if string in EMOTIONS:
+            return copy(EMOTIONS[string])
+        if string in FEELINGS:
+            return FEELINGS[string]
+        return string
+
+    # composite equivalent
+    @property
+    def emotion_vector(self):
+        sensitivity = Neutrality()
+        attention = Neutrality()
+        pleasantness = Neutrality()
+        aptitude = Neutrality()
+
+        if self._dimension:
+            if self._dimension.axis == "sensitivity":
+                sensitivity = copy(self)
+            elif self._dimension.axis == "attention":
+                attention = copy(self)
+            elif self._dimension.axis == "aptitude":
+                aptitude = copy(self)
+            elif self._dimension.axis == "pleasantness":
+                pleasantness = copy(self)
+
+        return [sensitivity, attention, pleasantness, aptitude]
+
+    @property
+    def as_array(self):
+        return np.array([emo.emotional_flow for emo in self.emotion_vector])
+
+    @property
+    def as_matrix(self):
+        sensitivity, attention, pleasantness, aptitude = self.emotion_vector
+        return np.matrix(((int(sensitivity), int(attention)),
+                          (int(pleasantness), int(aptitude))))
+
+    def __len__(self):
+        return len([e for e in self.emotion_vector if e.emotional_flow != 0])
+
+    def __add__(self, other):
+        if isinstance(other, str):
+            other = self.string_to_emotion(other)
+            if isinstance(other, str):
+                return self.name + other
+        if isinstance(other, Neutrality):
+            return copy(self)
+
+        # create feeling
+        if isinstance(other, Emotion):
+            if other._dimension == self._dimension:
+                flow = other.emotional_flow + self.emotional_flow
+                return self.emotion_from_flow(flow)
+            from emotion_data.feelings import Feeling
+            feel = Feeling()
+            feel.emotions = [copy(self), other]
+            return feel
+
+        from emotion_data.feelings import Feeling
+        if isinstance(other, Feeling):
+            other = other + self
+            return other
+
+        # upgrade emotion
+        try:
+            other = int(other)
+            flow = self.emotional_flow + other
+            return self.emotion_from_flow(flow)
+        except:
+            return NotImplemented
+
+    def __sub__(self, other):
+        if isinstance(other, str):
+            other = self.string_to_emotion(other)
+            if isinstance(other, str):
+                return self.name - other
+        if isinstance(other, Neutrality):
+            return copy(self)
+        if isinstance(other, Emotion):
+            # add opposite emotion
+            other = - other
+            return self.__add__(other)
+        # upgrade emotion
+        try:
+            other = int(other)
+            flow = self.emotional_flow - other
+            return self.emotion_from_flow(flow)
+        except:
+            return NotImplemented
+
+    def __mul__(self, other):
+        if isinstance(other, str):
+            other = self.string_to_emotion(other)
+        if isinstance(other, Neutrality):
+            return copy(self)
+
+        if isinstance(other, Emotion):
+            from emotion_data.composite_emotions import CompositeEmotion
+            # a composite emotion is created
+            c = CompositeEmotion()
+            return c + self + other
+        return NotImplemented
+
+    def __truediv__(self, other):
+        if isinstance(other, str):
+            other = self.string_to_emotion(other)
+        if isinstance(other, Neutrality):
+            return copy(self)
+        if isinstance(other, Emotion):
+            return NotImplemented
+
+        try:
+            other = int(other)
+            flow = self.emotional_flow / other
+            return self.emotion_from_flow(flow)
+        except:
+            return NotImplemented
+
+    def __floordiv__(self, other):
+        if isinstance(other, str):
+            other = self.string_to_emotion(other)
+        if isinstance(other, Neutrality):
+            return copy(self)
+        if isinstance(other, Emotion):
+            return NotImplemented
+        try:
+            other = int(other)
+            flow = self.emotional_flow // other
+            return self.emotion_from_flow(flow)
+        except:
+            return NotImplemented
+
+    def __lshift__(self, other):
+        if isinstance(other, str):
+            other = self.string_to_emotion(other)
+        if isinstance(other, Neutrality):
+            return copy(self)
+        if isinstance(other, Emotion):
+            if other._dimension == self._dimension:
+                flow = other.emotional_flow - self.emotional_flow
+                return self.emotion_from_flow(flow)
+            return NotImplemented
+        try:
+            other = int(other)
+            flow = self.emotional_flow - other
+            return self.emotion_from_flow(flow)
+        except:
+            return NotImplemented
+
+    def __rshift__(self, other):
+        if isinstance(other, str):
+            other = self.string_to_emotion(other)
+        if isinstance(other, Neutrality):
+            return copy(self)
+        if isinstance(other, Emotion):
+            if other._dimension == self._dimension:
+                flow = other.emotional_flow + self.emotional_flow
+                return self.emotion_from_flow(flow)
+            return NotImplemented
+        try:
+            other = int(other)
+            flow = self.emotional_flow + other
+            return self.emotion_from_flow(flow)
+        except:
+            return NotImplemented
+
+    # TODO
+    # (+=, -=, *=, @=, /=, //=, %=, **=, <<=, >>=, &=, ^=, |=).
+    #    object.__iadd__(self, other)
+    # object.__isub__(self, other)
+    # object.__imul__(self, other)
+    # object.__imatmul__(self, other)¶
+    # object.__itruediv__(self, other)
+    # object.__ifloordiv__(self, other)
+    # object.__imod__(self, other)
+    # object.__ipow__(self, other[, modulo])
+    # object.__ilshift__(self, other)
+    # object.__irshift__(self, other)
+    # object.__iand__(self, other)
+    # object.__ixor__(self, other)
+    # object.__ior__(self, other)
+
+    def __bool__(self):
+        if self.emotional_flow == 0:
+            return NotImplemented
+        return self.emotional_flow > 0
+
+    def __neg__(self):
+        # get opposite emotion
+        return copy(self.opposite_emotion)
+
+    def __pos__(self):
+        if self.emotional_flow:
+            return copy(self)
+        return copy(self.opposite_emotion)
+
+    def __abs__(self):
+        return Neutrality()
+
+    def __int__(self):
+        return self.emotional_flow + self.intensity_offset
+
+    def __float__(self):
+        return float(self.emotional_flow)
+
+    def __lt__(self, other):
+        return int(self) < int(other)
+
+    def __le__(self, other):
+        return int(self) <= int(other)
+
+    def __eq__(self, other):
+        if isinstance(other, Emotion):
+            if other._dimension == self._dimension:
+                return self.emotional_flow == other.emotional_flow
+            return False
+        return self._name == other
+
+    def __ne__(self, other):
+        if isinstance(other, Emotion):
+            if other._dimension == self._dimension:
+                return self.emotional_flow != other.emotional_flow
+            return True
+        return self._name != other
+
+    def __gt__(self, other):
+        return int(self) > int(other)
+
+    def __ge__(self, other):
+        return int(self) >= int(other)
+
+    def __contains__(self, item):
+        if isinstance(item, Neutrality):
+            return True
+        if isinstance(item, Emotion):
+            return item.base_emotion in self.emotion_vector
+        if isinstance(item, EmotionalDimension):
+            return self._dimension == item
+        if isinstance(item, str):
+            return self._dimension.axis == item
+        return NotImplemented
+
+
+class Neutrality(Emotion):
+    def __init__(self, dimension=""):
+        Emotion.__init__(self, "neutrality", dimension)
+
+    @property
+    def intensity(self):
+        return "null"
+
+    @property
+    def type(self):
+        return "neutral"
+
+    @property
+    def kind(self):
+        return "neutral"
+
+    @property
+    def valence(self):
+        return 0
+
+    @property
+    def emotional_flow(self):
+        return 0
+
+    @property
+    def is_primary(self):
+        return True
+
+    @property
+    def base_emotion(self):
+        return self
+
+    @property
+    def opposite_emotion(self):
+        return self
+
+    @property
+    def parent_emotion(self):
+        return None
+
+    def __add__(self, other):
+        if isinstance(other, str):
+            other = self.string_to_emotion(other)
+        if isinstance(other, str):
+            return self.name + other
+        if isinstance(other, Emotion):
+            if self.dimension:
+                other._kind = other.kind
+                other._dimension = self._dimension
+                other._name = self.name + " " + other.name
+
+        return other
+
+    def __sub__(self, other):
+        if isinstance(other, str):
+            other = self.string_to_emotion(other)
+        if isinstance(other, Emotion):
+            return - other
+        return other
+
+    def __eq__(self, other):
+        if isinstance(other, bool):
+            return True
+        if isinstance(other, Emotion):
+            if other.emotional_flow == 0:
+                return True
+            return False
+        if isinstance(other, int) or isinstance(other, float):
+            return other == 0
+        if isinstance(other, str):
+            return other == self.name
+        from emotion_data.feelings import Feeling
+        if isinstance(other, list) or isinstance(other, tuple) or isinstance(other, Feeling):
+            return len(other) == 0
+        return NotImplemented
+
+    def __len__(self):
+        return 0
 
 
 class EmotionalDimension(object):
@@ -290,8 +617,50 @@ class EmotionalDimension(object):
     def name(self):
         return str(self.axis)
 
+    @property
+    def valence(self):
+        # valence by dimension
+        if "sensitivity" in self.axis:
+            return - 1
+        if "attention" in self.axis:
+            return 1
+        return 0
+
+    @property
+    def kind(self):
+        # type by dimension
+        if "sensitivity" in self.axis:
+            return "negative"
+        if "attention" in self.axis:
+            return "positive"
+        return "neutral"
+
+    def __str__(self):
+        return self.name
+
     def __repr__(self):
         return "DimensionObject:" + self.name
+
+    def __add__(self, other):
+        from emotion_data.composite_emotions import CompositeDimension
+        if isinstance(other, EmotionalDimension):
+            d = CompositeDimension()
+            return d + self + other
+        return NotImplemented
+
+    def __contains__(self, item):
+        if isinstance(item, Neutrality):
+            return True
+        if isinstance(item, Emotion):
+            return item._dimension == self
+        return False
+
+    def __eq__(self, other):
+        if isinstance(other, EmotionalDimension):
+            if other.name == self.name:
+                return True
+            return False
+        return self.name == other
 
 
 def _get_dimensions():
@@ -310,12 +679,12 @@ def _get_dimensions():
         dimension.intense_opposite = Emotion(HOURGLASS_OF_EMOTIONS[d][5].lower())
 
         # pass the dimention reference to the emotion
-        dimension.basic_emotion.dimension = dimension
-        dimension.basic_opposite.dimension = dimension
-        dimension.mild_emotion.dimension = dimension
-        dimension.mild_opposite.dimension = dimension
-        dimension.intense_emotion.dimension = dimension
-        dimension.intense_opposite.dimension = dimension
+        dimension.basic_emotion._dimension = dimension
+        dimension.basic_opposite._dimension = dimension
+        dimension.mild_emotion._dimension = dimension
+        dimension.mild_opposite._dimension = dimension
+        dimension.intense_emotion._dimension = dimension
+        dimension.intense_opposite._dimension = dimension
 
         dimension_map[d] = dimension
     return dimension_map
@@ -324,96 +693,3 @@ def _get_dimensions():
 DIMENSIONS = _get_dimensions()
 
 
-class CompositeEmotion(Emotion):
-    def __init__(self, name):
-        Emotion.__init__(self, name)
-        self.name = name
-        self.components = []
-
-    @property
-    def type(self):
-        # TODO science this instead of eye balling
-        if self.emotional_flow < 0:  # 2 x low
-            if "attention" in self.dimension.axis:
-                return "negative and not in control"
-            if "aptitude" in self.dimension.axis:
-                return "negative and forceful"
-        elif self.emotional_flow == 0: # low + high
-            if "attention" in self.dimension.axis:
-                return "negative and forceful"
-
-            if "aptitude" in self.dimension.axis:
-                return "negative and not in control"
-        else:  # 2 x high
-            if "aptitude" in self.dimension.axis:
-                return "caring"
-            if "sensitivity" in self.dimension.axis:
-                return "negative and not in control"
-            if "pleasantness" in self.dimension.axis:
-                return "quiet positive"
-
-    @property
-    def base_emotion(self):
-        # TODO science this
-        return None
-
-    @property
-    def parent_emotion(self):
-        # TODO science this
-        return None
-
-    @property
-    def opposite_emotion(self):
-        composite_emotion = OPPOSITE_EMOTIONS_NAMES.get(self.name)
-        if composite_emotion:
-            e = CompositeEmotion(composite_emotion)
-            d = CompositeEmotionalDimension()
-            for emotion in COMPOSITE_EMOTIONS_NAMES[composite_emotion]:
-                emo = Emotion(emotion)
-                for dim in HOURGLASS_OF_EMOTIONS:
-                    if emotion in HOURGLASS_OF_EMOTIONS[dim]:
-                        emo.dimension = DIMENSIONS[dim]
-                e.components.append(emo)
-                d.components.append(emo.dimension)
-                d.axis.append(emo.dimension.axis)
-                e.dimension = d
-            return e
-        else:
-            return None
-
-    @property
-    def emotional_flow(self):
-        # TODO science this instead of eye balling
-        total = 0
-        for emotion in self.components:
-            total += abs(emotion.emotional_flow)
-
-        return total / len(self.components)
-
-    @property
-    def is_composite(self):
-        return True
-
-    @property
-    def equivalent_feeling(self):
-
-        from emotion_data.feelings import FEELINGS_TO_EMOTION_MAP, FEELINGS
-        for feel in FEELINGS_TO_EMOTION_MAP:
-            #print(self.components[0].name, self.components[1].name)
-            feel = feel.lower()
-            if self.components[0].name in [f.lower() for f in FEELINGS_TO_EMOTION_MAP[feel]] and self.components[1].name in [f.lower() for f in FEELINGS_TO_EMOTION_MAP[feel]]:
-                return FEELINGS[feel]
-        return None
-
-    def __repr__(self):
-        return "CompositeEmotionObject:" + self.name
-
-
-class CompositeEmotionalDimension(EmotionalDimension):
-    def __init__(self):
-        EmotionalDimension.__init__(self)
-        self.components = []  # list of dimension objects
-        self.axis = []
-
-    def __repr__(self):
-        return "CompositeDimensionObject:" + self.name
