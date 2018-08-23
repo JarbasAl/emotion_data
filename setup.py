@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='emotion_data',
-    version='0.1',
+    version='0.5',
     packages=['emotion_data'],
     url='',
     license='MIT',
