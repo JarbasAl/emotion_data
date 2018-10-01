@@ -54,14 +54,17 @@ KIND_TO_EMOTION_MAP = {
 
 
 def random_emotion():
-    return EMOTIONS[random.choice(list(EMOTIONS.keys()))]
+    return EMOTIONS.get(random.choice(list(EMOTIONS.keys())))
 
 
 def get_emotion(emotion_name):
     return EMOTIONS.get(emotion_name)
 
 
-def get_dimension(emotion_name):
+def get_dimension(dimension_name):
+    return copy(DIMENSIONS.get(dimensions_name))
+
+def emotion_to_dimension(emotion_name):
     emotion = get_emotion(emotion_name)
     if emotion:
         if emotion.is_composite:

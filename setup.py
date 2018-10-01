@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='emotion_data',
-    version='0.5',
+    version='0.6',
     packages=['emotion_data'],
     url='https://github.com/JarbasAl/emotion_data',
     license='MIT',
