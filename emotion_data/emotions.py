@@ -62,7 +62,8 @@ def get_emotion(emotion_name):
 
 
 def get_dimension(dimension_name):
-    return copy(DIMENSIONS.get(dimensions_name))
+    return DIMENSIONS.get(dimension_name)
+
 
 def emotion_to_dimension(emotion_name):
     emotion = get_emotion(emotion_name)
