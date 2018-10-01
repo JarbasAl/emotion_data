@@ -1,5 +1,7 @@
 # Emotion Data
 
+read the [blog post](https://jarbasal.github.io/posts/2018/10/emotion_data/)
+
 structured data to work with emotions
 
 this project was made for use with [LILACS](https://github.com/JarbasAl/LILACS/), this is early work and subject to change, information bellow may be outdated
