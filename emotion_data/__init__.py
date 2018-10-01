@@ -56,3 +56,8 @@ class EmotionAnalyzer(object):
     def dimension(dimension_name):
         return get_dimension(dimension_name)
 
+    @staticmethod
+    def get(word):
+        word = word.lower().strip()
+        return get_emotion(word) or get_feeling(word) or get_dimension(word)
+
